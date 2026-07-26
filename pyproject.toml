@@ -1,0 +1,46 @@
+[project]
+name = "meta-ts-correction"
+version = "0.1.0"
+description = "Meta-feature-conditioned residual correction for frozen time-series foundation models"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "torch>=2.2",
+    "scikit-learn>=1.4",
+    "scipy>=1.12",
+    "pyyaml>=6.0",
+    "tqdm>=4.66",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+]
+
+# Heavier forecasting deps — install later when we need them:
+#   uv pip install -e ".[forecast]"
+forecast = [
+    "statsforecast>=1.7",
+    "gluonts>=0.14",
+]
+
+[project.scripts]
+meta-ts-check = "meta_ts.smoke:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/meta_ts"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
