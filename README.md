@@ -43,7 +43,7 @@ uv pip install -e ".[forecast]"   # StatsForecast / GluonTS when baselines land
 | 0 | Scaffold + smoke | `meta-ts-check` + `pytest` green on Mac/MPS |
 | 1 | Rolling-origin windows | Unit-tested window builder, no leakage across origins |
 | 2 | Seasonal naive baseline | Windows → naive → MASE path works end-to-end |
-| 3 | Metrics + stats | CRPS + DM + Wilcoxon-Holm with hand-checked tests |
+| 3 | Stats (DM + Wilcoxon-Holm) | Pairwise significance with Holm adjustment |
 | 4 | StatsForecast baselines | AutoARIMA/ETS wired |
 | 5 | **Harness validated** → tag `harness-validated` | Reproduce a published/reference MASE on 2–3 datasets |
 | 6 | Frozen TSFM + residual cache | Chronos-Bolt (MPS) zero-shot; leakage table filled |
