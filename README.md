@@ -40,16 +40,17 @@ uv pip install -e ".[forecast]"   # StatsForecast / GluonTS when baselines land
 
 | # | Milestone | Exit criterion |
 |---|-----------|----------------|
-| 0 | **Scaffold + smoke** (you are here) | `meta-ts-check` + `pytest` green on Mac/MPS |
+| 0 | Scaffold + smoke | `meta-ts-check` + `pytest` green on Mac/MPS |
 | 1 | Rolling-origin windows | Unit-tested window builder, no leakage across origins |
-| 2 | Metrics + stats | MASE / CRPS + DM + Wilcoxon-Holm with hand-checked tests |
-| 3 | Seasonal naive + StatsForecast | Trivial + AutoARIMA/ETS baselines wired |
-| 4 | **Harness validated** → tag `harness-validated` | Reproduce a published/reference MASE on 2–3 datasets |
-| 5 | Frozen TSFM + residual cache | Chronos-Bolt (MPS) zero-shot; leakage table filled |
-| 6 | Corrector v1 (point) | Go/no-go vs base on clean sets |
-| 7 | Meta-features + γ gate | Ablations = earlier commits’ behavior |
-| 8 | Full eval + figures | Multi-seed, Pareto, CD, when-it-helps |
-| 9 | Paper | Draft + one-command repro |
+| 2 | Seasonal naive baseline | Windows → naive → MASE path works end-to-end |
+| 3 | Metrics + stats | CRPS + DM + Wilcoxon-Holm with hand-checked tests |
+| 4 | StatsForecast baselines | AutoARIMA/ETS wired |
+| 5 | **Harness validated** → tag `harness-validated` | Reproduce a published/reference MASE on 2–3 datasets |
+| 6 | Frozen TSFM + residual cache | Chronos-Bolt (MPS) zero-shot; leakage table filled |
+| 7 | Corrector v1 (point) | Go/no-go vs base on clean sets |
+| 8 | Meta-features + γ gate | Ablations = earlier commits’ behavior |
+| 9 | Full eval + figures | Multi-seed, Pareto, CD, when-it-helps |
+| 10 | Paper | Draft + one-command repro |
 
 ## Layout
 
