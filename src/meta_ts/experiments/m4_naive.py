@@ -1,0 +1,110 @@
+from __future__ import annotations
+
+import pandas as pd
+
+from meta_ts.baselines.seasonal_naive import seasonal_naive
+from meta_ts.data.m4 import M4Series, load_m4_group
+from meta_ts.metrics.mase import mase
+from meta_ts.results.fingerprint import forecast_fingerprint
+from meta_ts.results.manifest import init_run, mark_completed, mark_failed
+from meta_ts.results.paths import cache_paths
+from meta_ts.results.store import (
+    read_forecast_cache,
+    summarize_scores,
+    write_forecast_cache,
+    write_run_artifacts,
+)
+
+
+def run_m4_seasonal_naive(
+    config_path: str,
+    *,
+    base: str = "outputs",
+    data_dir: str = "data/raw",
+    use_cache: bool = True,
+) -> str:
+    manifest, paths = init_run(config_path, base=base)
+    try:
+        cfg = manifest.config
+        group = cfg["dataset"]["group"]
+        model_name = cfg.get("model", "seasonal_naive")
+        series = load_m4_group(group, directory=data_dir)
+        seasonality = series[0].seasonality
+        horizon = series[0].horizon
+
+        fp = forecast_fingerprint(
+            model=model_name,
+            dataset="m4",
+            group=group,
+            horizon=horizon,
+            seasonality=seasonality,
+        )
+        cache = cache_paths(model_name, f"m4_{group.lower()}", fp, base=base)
+
+        if use_cache and cache.forecasts.exists():
+            forecasts, _ = read_forecast_cache(cache)
+        else:
+            forecasts = _forecast_frame(series, model_name)
+            write_forecast_cache(
+                cache,
+                forecasts=forecasts,
+                meta={
+                    "model": model_name,
+                    "dataset": "m4",
+                    "group": group,
+                    "horizon": horizon,
+                    "seasonality": seasonality,
+                    "fingerprint": fp,
+                    "n_series": len(series),
+                },
+            )
+
+        scores = _score_frame(series, forecasts, model_name)
+        summary = summarize_scores(scores)
+        summary["group"] = group
+        summary["fingerprint"] = fp
+        write_run_artifacts(paths, forecasts=forecasts, scores=scores, summary=summary)
+        mark_completed(manifest, paths)
+        return manifest.run_id
+    except Exception as exc:
+        mark_failed(manifest, paths, str(exc))
+        raise
+
+
+def _forecast_frame(series: list[M4Series], model_name: str) -> pd.DataFrame:
+    rows: list[dict[str, object]] = []
+    for item in series:
+        pred = seasonal_naive(item.train, item.horizon, item.seasonality)
+        for step, (y_true, y_pred) in enumerate(zip(item.test, pred, strict=True), start=1):
+            rows.append(
+                {
+                    "series_id": item.series_id,
+                    "model": model_name,
+                    "step": step,
+                    "y_true": float(y_true),
+                    "y_pred": float(y_pred),
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def _score_frame(
+    series: list[M4Series],
+    forecasts: pd.DataFrame,
+    model_name: str,
+) -> pd.DataFrame:
+    by_id = {item.series_id: item for item in series}
+    rows: list[dict[str, object]] = []
+    for series_id, frame in forecasts.groupby("series_id", sort=False):
+        item = by_id[str(series_id)]
+        pred = frame.sort_values("step")["y_pred"].to_numpy(dtype=float)
+        value = mase(item.test, pred, item.train, seasonality=item.seasonality)
+        rows.append(
+            {
+                "series_id": str(series_id),
+                "model": model_name,
+                "metric": "mase",
+                "value": float(value),
+            }
+        )
+    return pd.DataFrame(rows)

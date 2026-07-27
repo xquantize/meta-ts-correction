@@ -1,0 +1,8 @@
+name: seasonal_naive_m4_hourly
+model: seasonal_naive
+dataset:
+  name: m4
+  group: Hourly
+metrics:
+  - mase
+seed: 0

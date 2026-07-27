@@ -21,17 +21,37 @@ uv pip install -e ".[forecast]"
 meta-ts-validate-harness
 ```
 
-That last command scores official M4 Naive2 forecasts with our MASE and checks Hourly / Weekly / Daily against published numbers. Passing that is tagged `harness-validated`.
+That scores official M4 Naive2 forecasts with our MASE against published Hourly / Weekly / Daily numbers (`harness-validated`).
+
+## Experiments
+
+Configs live in `configs/`. Each run writes a traceable folder under `outputs/runs/`:
+
+```text
+outputs/runs/<run_id>/
+  manifest.json      # git sha, config hash, status
+  config.yaml        # frozen copy
+  forecasts.parquet
+  scores.parquet
+  summary.json
+```
+
+Forecasts are also cached under `outputs/cache/forecasts/` so models are not recomputed across runs.
+
+```bash
+meta-ts-run configs/seasonal_naive_m4_hourly.yaml
+```
 
 ## Go / no-go
 
-After corrector v1 (point residual only): if it does not beat the frozen base model on non-leaked datasets under DM / Wilcoxon-Holm, pivot to a study of when TSFMs need correction. Decided upfront so a null result is still publishable.
+After corrector v1 (point residual only): if it does not beat the frozen base model on non-leaked datasets under DM / Wilcoxon-Holm, pivot to a study of when TSFMs need correction.
 
 ## Layout
 
-```
-src/meta_ts/   library code
+```text
+src/meta_ts/   library + experiments
 tests/         unit + harness checks
 configs/       one YAML per experiment
 docs/          leakage audit and notes
+outputs/       runs, forecast cache, tables, figures (gitignored)
 ```
