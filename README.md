@@ -33,7 +33,8 @@ GPU note: on Apple Silicon, PyTorch uses **MPS** (Metal), not CUDA. `meta-ts-che
 Later:
 
 ```bash
-uv pip install -e ".[forecast]"   # StatsForecast AutoARIMA / AutoETS
+uv pip install -e ".[forecast]"   # StatsForecast + datasetsforecast (M4)
+meta-ts-validate-harness          # match published M4 Naive2 MASE
 ```
 
 ## Milestone sequence
@@ -45,7 +46,8 @@ uv pip install -e ".[forecast]"   # StatsForecast AutoARIMA / AutoETS
 | 2 | Seasonal naive baseline | Windows → naive → MASE path works end-to-end |
 | 3 | Stats (DM + Wilcoxon-Holm) | Pairwise significance with Holm adjustment |
 | 4 | StatsForecast baselines | AutoARIMA/ETS wired |
-| 5 | **Harness validated** → tag `harness-validated` | Reproduce a published/reference MASE on 2–3 datasets |
+| 5 | **Harness validated** → tag `harness-validated` | Match published M4 Naive2 MASE on Hourly/Weekly/Daily |
+
 | 6 | Frozen TSFM + residual cache | Chronos-Bolt (MPS) zero-shot; leakage table filled |
 | 7 | Corrector v1 (point) | Go/no-go vs base on clean sets |
 | 8 | Meta-features + γ gate | Ablations = earlier commits’ behavior |

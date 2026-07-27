@@ -25,10 +25,12 @@ dev = [
 forecast = [
     "statsforecast>=1.7",
     "gluonts>=0.14",
+    "datasetsforecast>=1.0",
 ]
 
 [project.scripts]
 meta-ts-check = "meta_ts.smoke:main"
+meta-ts-validate-harness = "meta_ts.validation.harness:main"
 
 [build-system]
 requires = ["hatchling"]

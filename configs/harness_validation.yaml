@@ -1,0 +1,13 @@
+# Reproduce published M4 Naive2 MASE with our metric + official forecasts.
+# References: Makridakis et al., The M4 Competition (IJF 2020);
+# Naive2 forecasts: https://github.com/Nixtla/m4-forecasts
+
+tolerance: 0.001
+
+groups:
+  - name: Hourly
+    naive2_mase: 2.395
+  - name: Weekly
+    naive2_mase: 2.777
+  - name: Daily
+    naive2_mase: 3.278
