@@ -30,10 +30,10 @@ pytest -q
 
 GPU note: on Apple Silicon, PyTorch uses **MPS** (Metal), not CUDA. `meta-ts-check` fails loudly if a matmul on the selected device errors.
 
-Later (not yet):
+Later:
 
 ```bash
-uv pip install -e ".[forecast]"   # StatsForecast / GluonTS when baselines land
+uv pip install -e ".[forecast]"   # StatsForecast AutoARIMA / AutoETS
 ```
 
 ## Milestone sequence
