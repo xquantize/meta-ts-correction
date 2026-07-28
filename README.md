@@ -18,10 +18,15 @@ On Apple Silicon, PyTorch uses MPS. Forecasting extras + harness check:
 
 ```bash
 uv pip install -e ".[forecast]"
-meta-ts-validate-harness
+meta-ts-validate-harness   # published M4 Naive2 MASE → harness-validated
 ```
 
-That scores official M4 Naive2 forecasts with our MASE against published Hourly / Weekly / Daily numbers (`harness-validated`).
+Foundation models (Chronos-Bolt on MPS):
+
+```bash
+uv pip install -e ".[tsfm]"
+meta-ts-run configs/chronos_bolt_tiny_m4_hourly.yaml
+```
 
 ## Experiments
 

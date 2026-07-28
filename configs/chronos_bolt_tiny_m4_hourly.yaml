@@ -1,0 +1,12 @@
+name: chronos_bolt_tiny_m4_hourly
+model: chronos
+model_id: amazon/chronos-bolt-tiny
+device: auto
+batch_size: 32
+dataset:
+  name: m4
+  group: Hourly
+metrics:
+  - mase
+  - smape
+seed: 0
