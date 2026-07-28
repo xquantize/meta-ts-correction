@@ -1,0 +1,20 @@
+\noindent\textbf{Claim.}
+A tiny residual corrector on a frozen TSFM, conditioned on cheap series
+meta-features and gated toward zero when the base model is already good, can
+recover much of the foundation model's accuracy at far lower cost, and we can
+characterize \emph{when} correction helps.
+
+\noindent\textbf{Go / no-go (pre-committed).}
+After corrector v1 (point residual only; no meta, no gate): if the corrector does
+not beat the frozen base on held-out series under Wilcoxon on per-series MASE
+($p < 0.05$, alternative base $>$ corrected), pivot to a study of
+\emph{when TSFMs need correction}. A null is publishable if decided upfront.
+
+\noindent\textbf{Status (current).}
+Corrector v1 on M4 Hourly held-out series: \textbf{no\_go} (run log R3).
+Harness validated against published M4 Naive2 MASE (tag \texttt{harness-validated}).
+
+\noindent\textbf{Leakage.}
+M4 is treated as \textbf{high overlap risk} for Chronos (see
+\texttt{docs/leakage.md}). Strong method claims should eventually be repeated on
+a clean / non-leaked suite.

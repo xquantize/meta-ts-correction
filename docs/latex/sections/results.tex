@@ -1,0 +1,38 @@
+% Compact tables meant to survive into the paper draft.
+% Detail and full run ids live in run_log.tex — keep this section short.
+
+\subsection*{Baselines (M4 Hourly, full set)}
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Model & $n$ & MASE & sMAPE \\
+\midrule
+Seasonal naive & 414 & 1.193 & 13.91 \\
+Chronos-Bolt tiny & 414 & 0.931 & 8.97 \\
+\bottomrule
+\end{tabular}
+\caption{Full-group point forecasts. Traceability: run log R1--R2.}
+\end{table}
+
+\subsection*{Corrector v1 vs frozen Chronos (held-out series)}
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+Model & MASE & sMAPE \\
+\midrule
+Chronos (frozen) & 1.070 & 11.32 \\
+Chronos + corrector v1 & 1.069 & 11.30 \\
+\bottomrule
+\end{tabular}
+\caption{Test fold ($n=62$, seed 0). Wilcoxon $p=0.221$ $\Rightarrow$
+\textbf{no\_go}. Traceability: run log R3.}
+\end{table}
+
+\noindent\textbf{Working conclusion.}
+Point residual correction (no meta, no gate) does not significantly beat
+Chronos-Bolt tiny on this split. That is the recorded v1 outcome under the
+pre-committed rule.

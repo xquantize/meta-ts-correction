@@ -1,0 +1,17 @@
+\begin{itemize}
+  \item \textbf{Harness.} Official M4 Naive2 forecasts scored with our MASE match
+        published Hourly / Weekly / Daily numbers (tag \texttt{harness-validated}).
+  \item \textbf{Metrics.} MASE (seasonal-naive scale) and sMAPE (M4-style).
+  \item \textbf{Baselines so far.} Seasonal naive and Chronos-Bolt tiny on M4
+        Hourly (full set, $n=414$).
+  \item \textbf{Residuals.} Chronos forecasts $\rightarrow$
+        \texttt{outputs/datasets/residuals/residuals\_chronos\_m4\_hourly/}
+        (point residuals + series meta-features).
+  \item \textbf{Splits.} Corrector experiments use \emph{series-level}
+        train/val/test splits (no series in more than one fold). Split IDs are
+        saved in \texttt{splits.json}.
+  \item \textbf{Tracking.} Each run writes \texttt{manifest.json} (git SHA,
+        config hash), frozen \texttt{config.yaml}, scores/forecasts parquet,
+        and (for correctors) \texttt{comparisons.json} + \texttt{go\_nogo} in
+        \texttt{summary.json}. Tables via DuckDB (\texttt{meta-ts-tables}).
+\end{itemize}

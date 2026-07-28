@@ -45,15 +45,20 @@ Forecasts are also cached under `outputs/cache/forecasts/` so models are not rec
 
 ```bash
 meta-ts-run configs/seasonal_naive_m4_hourly.yaml
+meta-ts-run configs/chronos_bolt_tiny_m4_hourly.yaml
+meta-ts-residuals configs/residuals_chronos_m4_hourly.yaml
+meta-ts-run configs/corrector_v1_chronos_m4_hourly.yaml
 meta-ts-tables --list-runs
-meta-ts-tables                 # prints leaderboard + writes outputs/tables/leaderboard.csv
+meta-ts-tables
 ```
 
-Analytics default to **DuckDB** over the parquet run lake. The backend is swappable (`--backend duckdb`; `lancedb` reserved for a future embedding store).
+Residual datasets land in `outputs/datasets/residuals/<name>/`. Corrector runs also write `splits.json`, `scaler.json`, `train_log.json`, `comparisons.json`, and `model.pt`. Query runs with `meta-ts-tables` (DuckDB).
 
 ## Go / no-go
 
-After corrector v1 (point residual only): if it does not beat the frozen base model on non-leaked datasets under DM / Wilcoxon-Holm, pivot to a study of when TSFMs need correction.
+After corrector v1 (point residual only): if it does not beat the frozen base on held-out series under Wilcoxon on per-series MASE ($p < 0.05$), pivot to a study of when TSFMs need correction.
+
+**Current:** corrector v1 on M4 Hourly is **no_go** (see `docs/latex/`, run log R3). Harness tag: `harness-validated`.
 
 ## Layout
 
@@ -61,6 +66,8 @@ After corrector v1 (point residual only): if it does not beat the frozen base mo
 src/meta_ts/   library + experiments
 tests/         unit + harness checks
 configs/       one YAML per experiment
-docs/          leakage audit and notes
+docs/          leakage audit; LaTeX notes in docs/latex/ (run log + paper tables)
 outputs/       runs, forecast cache, tables, figures (gitignored)
 ```
+
+Keep `docs/latex/` current: after a useful run, `./docs/latex/scripts/note_run.sh outputs/runs/<run_id>` and paste into `sections/run_log.tex`.

@@ -1,0 +1,16 @@
+\noindent\textbf{After every useful experiment}
+\begin{enumerate}
+  \item Confirm the run folder exists under \texttt{outputs/runs/<run\_id>/}.
+  \item Generate a stub:
+        \texttt{./docs/latex/scripts/note\_run.sh outputs/runs/<run\_id>}
+  \item Paste it at the \emph{top} of \texttt{sections/run\_log.tex}, bump the
+        \texttt{R\#}, fill the paper note.
+  \item If the number belongs in the report, update the compact table in
+        \texttt{sections/results.tex} and point to that \texttt{R\#}.
+  \item Recompile: \texttt{pdflatex main.tex}.
+  \item Commit \texttt{.tex} sources (not the PDF) with the code that produced
+        the run when practical.
+\end{enumerate}
+
+\noindent\textbf{Do not} put one-off debug runs in the log. \textbf{Do} keep
+failed go/no-go outcomes --- they are part of the scientific record.

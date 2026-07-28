@@ -1,0 +1,45 @@
+% Working notes toward a short empirical paper.
+% Compile from this directory:
+%   export PATH="/usr/local/texlive/2026basic/bin/universal-darwin:$PATH"
+%   pdflatex main.tex && pdflatex main.tex
+
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\title{meta-ts-correction \\ \large Working results notes}
+\author{Living lab notebook (feeds the final report)}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Keep this document current. \textbf{run\_log} is the append-only record of
+experiments; \textbf{results} holds the short tables we expect to reuse in a
+$\sim$6-page paper. Every paper-facing number must cite a full
+\texttt{run\_id}.
+\end{abstract}
+
+\section{How we maintain this}
+\input{sections/workflow}
+
+\section{Claim and decision rule}
+\input{sections/claim}
+
+\section{Evaluation protocol}
+\input{sections/protocol}
+
+\section{Results (paper-facing)}
+\input{sections/results}
+
+\section{Run log (append-only)}
+\input{sections/run_log}
+
+\section{Open questions}
+\input{sections/open_questions}
+
+\end{document}
