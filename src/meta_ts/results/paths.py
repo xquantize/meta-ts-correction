@@ -66,6 +66,35 @@ def figures_root(base: str | Path = "outputs") -> Path:
     return Path(base) / "figures"
 
 
+def residuals_root(base: str | Path = "outputs") -> Path:
+    return Path(base) / "datasets" / "residuals"
+
+
+@dataclass(frozen=True)
+class ResidualDatasetPaths:
+    root: Path
+
+    @property
+    def residuals(self) -> Path:
+        return self.root / "residuals.parquet"
+
+    @property
+    def series_meta(self) -> Path:
+        return self.root / "series_meta.parquet"
+
+    @property
+    def manifest(self) -> Path:
+        return self.root / "manifest.json"
+
+    def ensure(self) -> ResidualDatasetPaths:
+        self.root.mkdir(parents=True, exist_ok=True)
+        return self
+
+
+def residual_paths(name: str, base: str | Path = "outputs") -> ResidualDatasetPaths:
+    return ResidualDatasetPaths(root=residuals_root(base) / name)
+
+
 def run_paths(run_id: str, base: str | Path = "outputs") -> RunPaths:
     return RunPaths(root=runs_root(base) / run_id)
 

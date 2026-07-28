@@ -6,7 +6,7 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
-from meta_ts.results.paths import runs_root
+from meta_ts.results.paths import residual_paths, runs_root
 
 
 class DuckDBAnalytics:
@@ -71,6 +71,26 @@ class DuckDBAnalytics:
 
     def sql(self, query: str) -> pd.DataFrame:
         return self._con.execute(query).df()
+
+    def load_residuals(self, name: str) -> pd.DataFrame:
+        path = residual_paths(name, base=self.base).residuals
+        if not path.exists():
+            raise FileNotFoundError(f"residual dataset not found: {path}")
+        return self._con.execute("SELECT * FROM read_parquet(?)", [str(path)]).df()
+
+    def residual_summary(self, name: str) -> pd.DataFrame:
+        residuals = self.load_residuals(name)
+        if residuals.empty:
+            return pd.DataFrame()
+        return (
+            residuals.groupby(["model", "series_id"], dropna=False)
+            .agg(
+                residual_mae=("residual", lambda s: float(s.abs().mean())),
+                residual_mean=("residual", "mean"),
+                n_steps=("step", "count"),
+            )
+            .reset_index()
+        )
 
     def _load_parquet_join(
         self,
