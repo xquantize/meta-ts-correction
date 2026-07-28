@@ -29,6 +29,11 @@ forecast = [
     "datasetsforecast>=1.0",
 ]
 
+tsfm = [
+    "chronos-forecasting>=1.5",
+    "transformers>=4.40",
+]
+
 [project.scripts]
 meta-ts-check = "meta_ts.smoke:main"
 meta-ts-validate-harness = "meta_ts.validation.harness:main"
