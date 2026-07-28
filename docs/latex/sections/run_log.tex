@@ -1,6 +1,34 @@
 % Chronological experiment log. Append newest entries at the TOP.
 % Rule: every number that might enter the paper must appear here with a full run_id.
 
+\subsection*{R5 --- When-it-helps stratification (2026-07-29)}
+\begin{itemize}
+  \item \textbf{Config:} \texttt{configs/when\_it\_helps\_chronos\_m4\_hourly.yaml}
+  \item \textbf{Artifact:}
+        \texttt{outputs/tables/when\_it\_helps/when\_it\_helps\_chronos\_m4\_hourly/}
+  \item \textbf{Source runs:} R3
+        (\texttt{20260728T041734Z\_corrector\_v1\_chronos\_m4\_hourly\_d9e83543342c}),
+        R4
+        (\texttt{20260728T214721Z\_corrector\_v2\_chronos\_m4\_hourly\_de857d53af29}).
+  \item \textbf{Setup:} test fold $n=62$; descriptive quartile bins on the same
+        fold (not a pre-registered policy); features
+        \{\texttt{cv}, \texttt{trend\_corr}, \texttt{seasonal\_corr},
+        \texttt{abs\_diff\_mean}, \texttt{base\_mase}\}
+        (\texttt{n\_train} collapsed / skipped on this fold).
+  \item \textbf{Numbers (overall):} v1 frac helped $=0.500$, mean $\Delta$MASE
+        $=+0.0009$; v2 frac helped $=0.403$, mean $\Delta$MASE $=-1.086$.
+  \item \textbf{Numbers (highlights):} v1 mild heterogeneity --- mid
+        \texttt{trend\_corr} quartile mean $\Delta=+0.104$ / frac helped
+        $0.667$ vs low-trend $\Delta=-0.114$ / $0.312$.
+        v2 damage concentrated --- high \texttt{seasonal\_corr} $\Delta=-3.793$
+        / helped $0.188$; low \texttt{abs\_diff\_mean} $\Delta=-3.899$ / $0.125$;
+        only high \texttt{abs\_diff\_mean} quartile is net-positive
+        ($\Delta=+0.067$, helped $0.750$).
+  \item \textbf{Decision:} analysis only (supports gate / selective apply).
+  \item \textbf{Paper note:} correction is not uniformly useless or harmful;
+        a gate (or abstain rule) is the natural next method step.
+\end{itemize}
+
 \subsection*{R4 --- Corrector v2 + meta-features (2026-07-29)}
 \begin{itemize}
   \item \textbf{Config:} \texttt{configs/corrector\_v2\_chronos\_m4\_hourly.yaml}

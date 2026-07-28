@@ -32,7 +32,29 @@ Chronos (frozen) & 1.070 & 11.32 & --- \\
 \caption{Test fold ($n=62$, seed 0). Traceability: run log R3--R4.}
 \end{table}
 
+\subsection*{When correction helps (descriptive quartiles, test fold)}
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{llrrr}
+\toprule
+Corrector & Slice & $n$ & mean $\Delta$MASE & frac helped \\
+\midrule
+v1 & overall & 62 & $+0.001$ & 0.50 \\
+v1 & mid \texttt{trend\_corr} Q2 & 15 & $+0.104$ & 0.67 \\
+v1 & low \texttt{trend\_corr} Q0 & 16 & $-0.114$ & 0.31 \\
+v2 & overall & 62 & $-1.086$ & 0.40 \\
+v2 & high \texttt{abs\_diff\_mean} Q3 & 16 & $+0.067$ & 0.75 \\
+v2 & low \texttt{abs\_diff\_mean} Q0 & 16 & $-3.899$ & 0.12 \\
+v2 & high \texttt{seasonal\_corr} Q3 & 16 & $-3.793$ & 0.19 \\
+\bottomrule
+\end{tabular}
+\caption{Positive $\Delta$ = correction helped. Traceability: run log R5;
+descriptive bins on the analysis fold.}
+\end{table}
+
 \noindent\textbf{Working conclusion.}
-On this M4 Hourly split, point residual correction does not significantly help,
-and adding meta-features without a gate \emph{degrades} accuracy. The natural
-next recorded step is a gated corrector and/or stratified when-it-helps analysis.
+On this M4 Hourly split, ungated correction does not win overall, but the
+$\Delta$ is heterogeneous: v1 is near a coin-flip with mild trend structure;
+v2's damage is concentrated (smooth / highly seasonal series), while one
+high-volatility slice is net-positive. Next method step: a gate / abstain rule.

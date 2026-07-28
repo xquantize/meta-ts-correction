@@ -1,0 +1,23 @@
+name: when_it_helps_chronos_m4_hourly
+metric: mase
+split: test
+residuals: residuals_chronos_m4_hourly
+runs:
+  - run_id: 20260728T041734Z_corrector_v1_chronos_m4_hourly_d9e83543342c
+  - run_id: 20260728T214721Z_corrector_v2_chronos_m4_hourly_de857d53af29
+strata:
+  - feature: cv
+    n_bins: 4
+  - feature: trend_corr
+    n_bins: 4
+  - feature: seasonal_corr
+    n_bins: 4
+  - feature: abs_diff_mean
+    n_bins: 4
+  - feature: n_train
+    n_bins: 4
+  - feature: base_mase
+    n_bins: 4
+notes: >
+  Descriptive quantile bins on the held-out test fold (n=62). Positive mean_delta
+  means correction helped on average in that bin. Not a pre-registered gate policy.
