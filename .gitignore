@@ -37,3 +37,6 @@ runs/
 *.ckpt
 *.parquet
 !configs/**
+
+docs/latex/sections/ENTRY_TEMPLATE.tex
+docs/latex/scripts/note_run.sh

@@ -40,6 +40,7 @@ meta-ts-check = "meta_ts.smoke:main"
 meta-ts-validate-harness = "meta_ts.validation.harness:main"
 meta-ts-run = "meta_ts.experiments.run:main"
 meta-ts-tables = "meta_ts.analytics.cli:main"
+meta-ts-residuals = "meta_ts.experiments.residuals_cli:main"
 
 [build-system]
 requires = ["hatchling"]
