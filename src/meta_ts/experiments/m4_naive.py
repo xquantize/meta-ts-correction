@@ -5,6 +5,7 @@ import pandas as pd
 from meta_ts.baselines.seasonal_naive import seasonal_naive
 from meta_ts.data.m4 import M4Series, load_m4_group
 from meta_ts.metrics.mase import mase
+from meta_ts.metrics.smape import smape
 from meta_ts.results.fingerprint import forecast_fingerprint
 from meta_ts.results.manifest import init_run, mark_completed, mark_failed
 from meta_ts.results.paths import cache_paths
@@ -14,6 +15,11 @@ from meta_ts.results.store import (
     write_forecast_cache,
     write_run_artifacts,
 )
+
+_METRICS = {
+    "mase": lambda item, pred: mase(item.test, pred, item.train, seasonality=item.seasonality),
+    "smape": lambda item, pred: smape(item.test, pred),
+}
 
 
 def run_m4_seasonal_naive(
@@ -28,6 +34,7 @@ def run_m4_seasonal_naive(
         cfg = manifest.config
         group = cfg["dataset"]["group"]
         model_name = cfg.get("model", "seasonal_naive")
+        metrics = list(cfg.get("metrics", ["mase"]))
         series = load_m4_group(group, directory=data_dir)
         seasonality = series[0].seasonality
         horizon = series[0].horizon
@@ -59,7 +66,7 @@ def run_m4_seasonal_naive(
                 },
             )
 
-        scores = _score_frame(series, forecasts, model_name)
+        scores = _score_frame(series, forecasts, model_name, metrics)
         summary = summarize_scores(scores)
         summary["group"] = group
         summary["fingerprint"] = fp
@@ -92,19 +99,24 @@ def _score_frame(
     series: list[M4Series],
     forecasts: pd.DataFrame,
     model_name: str,
+    metrics: list[str],
 ) -> pd.DataFrame:
+    unknown = [m for m in metrics if m not in _METRICS]
+    if unknown:
+        raise ValueError(f"unknown metrics: {unknown}")
+
     by_id = {item.series_id: item for item in series}
     rows: list[dict[str, object]] = []
     for series_id, frame in forecasts.groupby("series_id", sort=False):
         item = by_id[str(series_id)]
         pred = frame.sort_values("step")["y_pred"].to_numpy(dtype=float)
-        value = mase(item.test, pred, item.train, seasonality=item.seasonality)
-        rows.append(
-            {
-                "series_id": str(series_id),
-                "model": model_name,
-                "metric": "mase",
-                "value": float(value),
-            }
-        )
+        for metric in metrics:
+            rows.append(
+                {
+                    "series_id": str(series_id),
+                    "model": model_name,
+                    "metric": metric,
+                    "value": float(_METRICS[metric](item, pred)),
+                }
+            )
     return pd.DataFrame(rows)
