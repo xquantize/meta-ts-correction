@@ -1,0 +1,9 @@
+name: residuals_chronos_m4_hourly
+dataset:
+  name: m4
+  group: Hourly
+source:
+  model: chronos
+  dataset: m4_hourly
+  # fingerprint: set explicitly if multiple caches exist
+seed: 0
