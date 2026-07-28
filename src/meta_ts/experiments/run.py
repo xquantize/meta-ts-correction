@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from meta_ts.experiments.corrector_v1 import run_corrector_v1
 from meta_ts.experiments.m4_chronos import run_m4_chronos
 from meta_ts.experiments.m4_naive import run_m4_seasonal_naive
 from meta_ts.results.manifest import load_config
@@ -20,12 +21,16 @@ def main(argv: list[str] | None = None) -> int:
 
     config = load_config(args.config)
     model = config.get("model")
-    dataset = config.get("dataset", {})
 
-    if dataset.get("name") != "m4":
-        raise SystemExit(f"unsupported dataset: {dataset!r}")
-
-    if model == "seasonal_naive":
+    if model == "corrector_v1":
+        run_id = run_corrector_v1(
+            str(args.config),
+            base=args.base,
+            data_dir=args.data_dir,
+        )
+    elif config.get("dataset", {}).get("name") != "m4":
+        raise SystemExit(f"unsupported dataset: {config.get('dataset')!r}")
+    elif model == "seasonal_naive":
         run_id = run_m4_seasonal_naive(
             str(args.config),
             base=args.base,
@@ -45,8 +50,15 @@ def main(argv: list[str] | None = None) -> int:
     summary = load_summary(run_paths(run_id, base=args.base).summary)
     print(f"run_id: {run_id}")
     print("status: completed")
-    for row in summary["means"]:
+    for row in summary.get("means", []):
         print(f"{row['model']}  {row['metric']}={row['value']:.6f}  n={summary['n_series']}")
+    go = summary.get("go_nogo")
+    if go:
+        print(
+            f"go/no-go: {go['decision']}  "
+            f"ΔMASE={summary.get('comparisons', {}).get('mase', {}).get('delta_mean', float('nan')):.6f}  "
+            f"wilcoxon_p={go.get('mase_wilcoxon_pvalue')}"
+        )
     return 0
 
 

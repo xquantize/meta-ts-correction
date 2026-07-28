@@ -1,0 +1,24 @@
+name: corrector_v1_chronos_m4_hourly
+model: corrector_v1
+residuals: residuals_chronos_m4_hourly
+dataset:
+  name: m4
+  group: Hourly
+metrics:
+  - mase
+  - smape
+device: auto
+seed: 0
+split:
+  train: 0.7
+  val: 0.15
+  test: 0.15
+train:
+  hidden: 32
+  dropout: 0.0
+  epochs: 40
+  batch_size: 256
+  lr: 0.001
+notes: >
+  Point residual corrector v1 (no meta, no gate). Features: scaled y_pred + step_frac.
+  Series-level split. Decision: Wilcoxon on per-series MASE (base > corrected).
