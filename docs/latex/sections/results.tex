@@ -16,23 +16,23 @@ Chronos-Bolt tiny & 414 & 0.931 & 8.97 \\
 \caption{Full-group point forecasts. Traceability: run log R1--R2.}
 \end{table}
 
-\subsection*{Corrector v1 vs frozen Chronos (held-out series)}
+\subsection*{Correctors vs frozen Chronos (held-out series, same split)}
 \begin{table}[ht]
 \centering
 \small
-\begin{tabular}{lrr}
+\begin{tabular}{lrrl}
 \toprule
-Model & MASE & sMAPE \\
+Model & MASE & sMAPE & Decision \\
 \midrule
-Chronos (frozen) & 1.070 & 11.32 \\
-Chronos + corrector v1 & 1.069 & 11.30 \\
+Chronos (frozen) & 1.070 & 11.32 & --- \\
++ corrector v1 (point) & 1.069 & 11.30 & no\_go \\
++ corrector v2 (+ meta) & 2.156 & 12.51 & no\_go \\
 \bottomrule
 \end{tabular}
-\caption{Test fold ($n=62$, seed 0). Wilcoxon $p=0.221$ $\Rightarrow$
-\textbf{no\_go}. Traceability: run log R3.}
+\caption{Test fold ($n=62$, seed 0). Traceability: run log R3--R4.}
 \end{table}
 
 \noindent\textbf{Working conclusion.}
-Point residual correction (no meta, no gate) does not significantly beat
-Chronos-Bolt tiny on this split. That is the recorded v1 outcome under the
-pre-committed rule.
+On this M4 Hourly split, point residual correction does not significantly help,
+and adding meta-features without a gate \emph{degrades} accuracy. The natural
+next recorded step is a gated corrector and/or stratified when-it-helps analysis.

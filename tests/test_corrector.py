@@ -60,3 +60,24 @@ def test_scale_point_features():
     feats = scale_point_features(frame, scaler)
     assert feats.shape == (3, 2)
     assert add_point_features(frame)["step_frac"].tolist() == [1 / 3, 2 / 3, 1.0]
+
+
+def test_feature_scaler_includes_meta():
+    from meta_ts.corrector.features import V2_FEATURE_NAMES, FeatureScaler
+
+    frame = pd.DataFrame(
+        {
+            "y_pred": [10.0, 20.0, 30.0],
+            "step": [1, 2, 3],
+            "horizon": [3, 3, 3],
+            "cv": [0.1, 0.2, 0.3],
+            "trend_corr": [0.5, 0.4, 0.6],
+            "seasonal_corr": [0.8, 0.7, 0.9],
+            "abs_diff_mean": [1.0, 1.5, 2.0],
+            "n_train": [100, 120, 140],
+        }
+    )
+    scaler = FeatureScaler(V2_FEATURE_NAMES).fit(frame)
+    x = scaler.transform(frame)
+    assert x.shape == (3, len(V2_FEATURE_NAMES))
+    assert "columns" in scaler.to_dict()

@@ -48,6 +48,7 @@ meta-ts-run configs/seasonal_naive_m4_hourly.yaml
 meta-ts-run configs/chronos_bolt_tiny_m4_hourly.yaml
 meta-ts-residuals configs/residuals_chronos_m4_hourly.yaml
 meta-ts-run configs/corrector_v1_chronos_m4_hourly.yaml
+meta-ts-run configs/corrector_v2_chronos_m4_hourly.yaml
 meta-ts-tables --list-runs
 meta-ts-tables
 ```
@@ -58,7 +59,7 @@ Residual datasets land in `outputs/datasets/residuals/<name>/`. Corrector runs a
 
 After corrector v1 (point residual only): if it does not beat the frozen base on held-out series under Wilcoxon on per-series MASE ($p < 0.05$), pivot to a study of when TSFMs need correction.
 
-**Current:** corrector v1 on M4 Hourly is **no_go** (see `docs/latex/`, run log R3). Harness tag: `harness-validated`.
+**Current:** corrector v1 and v2 (with meta-features) are both **no_go** on M4 Hourly held-out series; v2 was worse than the frozen base (see `docs/latex/`, R3–R4). Harness tag: `harness-validated`.
 
 ## Layout
 

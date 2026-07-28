@@ -1,0 +1,32 @@
+name: corrector_v2_chronos_m4_hourly
+model: corrector_v2
+residuals: residuals_chronos_m4_hourly
+dataset:
+  name: m4
+  group: Hourly
+metrics:
+  - mase
+  - smape
+device: auto
+seed: 0
+features:
+  - y_pred
+  - step_frac
+  - cv
+  - trend_corr
+  - seasonal_corr
+  - abs_diff_mean
+  - log_n_train
+split:
+  train: 0.7
+  val: 0.15
+  test: 0.15
+train:
+  hidden: 32
+  dropout: 0.0
+  epochs: 40
+  batch_size: 256
+  lr: 0.001
+notes: >
+  Corrector v2: point features + series meta-features (no gate).
+  Same series split seed as v1 for a fair ablation.

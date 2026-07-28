@@ -1,6 +1,23 @@
 % Chronological experiment log. Append newest entries at the TOP.
 % Rule: every number that might enter the paper must appear here with a full run_id.
 
+\subsection*{R4 --- Corrector v2 + meta-features (2026-07-29)}
+\begin{itemize}
+  \item \textbf{Config:} \texttt{configs/corrector\_v2\_chronos\_m4\_hourly.yaml}
+  \item \textbf{Run id:}
+        \texttt{20260728T214721Z\_corrector\_v2\_chronos\_m4\_hourly\_de857d53af29}
+  \item \textbf{Setup:} same split seed 0 as v1 (test $n=62$);
+        features \{\texttt{y\_pred}, \texttt{step\_frac}, \texttt{cv},
+        \texttt{trend\_corr}, \texttt{seasonal\_corr}, \texttt{abs\_diff\_mean},
+        \texttt{log\_n\_train}\}; 1345 params; no gate.
+  \item \textbf{Numbers:} Chronos MASE 1.069970 / sMAPE 11.324201;
+        corrected MASE 2.155677 / sMAPE 12.508070;
+        $\Delta$MASE $= -1.085707$ (worse); Wilcoxon $p=0.998$ ($n=62$).
+  \item \textbf{Decision:} \textbf{no\_go}.
+  \item \textbf{Paper note:} naive meta-conditioning without a gate can
+        \emph{hurt}; motivates gating and when-it-helps stratification.
+\end{itemize}
+
 \subsection*{R3 --- Corrector v1 (2026-07-28)}
 \begin{itemize}
   \item \textbf{Config:} \texttt{configs/corrector\_v1\_chronos\_m4\_hourly.yaml}

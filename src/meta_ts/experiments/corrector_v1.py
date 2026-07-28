@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from meta_ts.corrector.features import StandardScaler1D, scale_point_features
+from meta_ts.corrector.features import FeatureScaler, resolve_feature_names
 from meta_ts.corrector.split import SeriesSplit, split_series_ids
 from meta_ts.corrector.train import predict_residuals, train_corrector
 from meta_ts.data.m4 import load_m4_group
@@ -20,7 +20,7 @@ from meta_ts.results.store import summarize_scores, write_run_artifacts
 from meta_ts.stats import diebold_mariano, wilcoxon_signed_rank
 
 
-def run_corrector_v1(
+def run_corrector(
     config_path: str,
     *,
     base: str = "outputs",
@@ -29,6 +29,7 @@ def run_corrector_v1(
     manifest, paths = init_run(config_path, base=base)
     try:
         cfg = manifest.config
+        variant = str(cfg.get("model", "corrector_v1"))
         residual_name = str(cfg["residuals"])
         group = str(cfg["dataset"]["group"])
         seed = int(cfg.get("seed", 0))
@@ -36,6 +37,8 @@ def run_corrector_v1(
         metrics = list(cfg.get("metrics", ["mase", "smape"]))
         train_cfg = cfg.get("train") or {}
         split_cfg = cfg.get("split") or {}
+        feature_names = resolve_feature_names(cfg)
+        corrected_model_name = f"chronos_{variant}"
 
         residuals, _series_meta, residual_manifest = load_residual_dataset(residual_name, base=base)
         split = split_series_ids(
@@ -50,10 +53,10 @@ def run_corrector_v1(
         val_df = residuals[residuals["series_id"].isin(split.val_ids)]
         test_df = residuals[residuals["series_id"].isin(split.test_ids)]
 
-        scaler = StandardScaler1D().fit(train_df["y_pred"].to_numpy(dtype=float))
-        x_train = scale_point_features(train_df, scaler)
-        x_val = scale_point_features(val_df, scaler)
-        x_test = scale_point_features(test_df, scaler)
+        scaler = FeatureScaler(feature_names).fit(train_df)
+        x_train = scaler.transform(train_df)
+        x_val = scaler.transform(val_df)
+        x_test = scaler.transform(test_df)
         y_train = train_df["residual"].to_numpy(dtype=float)
         y_val = val_df["residual"].to_numpy(dtype=float)
 
@@ -77,15 +80,19 @@ def run_corrector_v1(
         test_corrected["y_corr"] = test_corrected["y_pred"] + test_corrected["residual_hat"]
 
         series = {s.series_id: s for s in load_m4_group(group, directory=data_dir)}
-        scores = _score_base_and_corrected(test_corrected, series, metrics)
-        forecasts = _forecast_frame(test_corrected)
-        comparisons = _compare_models(scores, test_corrected)
+        scores = _score_base_and_corrected(
+            test_corrected, series, metrics, corrected_model_name=corrected_model_name
+        )
+        forecasts = _forecast_frame(test_corrected, corrected_model_name=corrected_model_name)
+        comparisons = _compare_models(
+            scores, test_corrected, corrected_model_name=corrected_model_name
+        )
 
         summary = summarize_scores(scores)
         summary.update(
             {
-                "variant": "corrector_v1",
-                "features": ["y_pred", "step_frac"],
+                "variant": variant,
+                "features": list(feature_names),
                 "n_parameters": result.model.n_parameters(),
                 "best_epoch": result.best_epoch,
                 "best_val_mae": result.best_val_mae,
@@ -103,7 +110,13 @@ def run_corrector_v1(
         )
 
         write_run_artifacts(paths, forecasts=forecasts, scores=scores, summary=summary)
-        _write_tracking(paths, split=split, scaler=scaler, result=result, comparisons=comparisons)
+        _write_tracking(
+            paths,
+            split=split,
+            scaler=scaler,
+            result=result,
+            comparisons=comparisons,
+        )
         mark_completed(manifest, paths)
         return manifest.run_id
     except Exception as exc:
@@ -111,10 +124,30 @@ def run_corrector_v1(
         raise
 
 
+def run_corrector_v1(
+    config_path: str,
+    *,
+    base: str = "outputs",
+    data_dir: str = "data/raw",
+) -> str:
+    return run_corrector(config_path, base=base, data_dir=data_dir)
+
+
+def run_corrector_v2(
+    config_path: str,
+    *,
+    base: str = "outputs",
+    data_dir: str = "data/raw",
+) -> str:
+    return run_corrector(config_path, base=base, data_dir=data_dir)
+
+
 def _score_base_and_corrected(
     frame: pd.DataFrame,
     series: dict,
     metrics: list[str],
+    *,
+    corrected_model_name: str,
 ) -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     for series_id, group in frame.groupby("series_id", sort=False):
@@ -125,7 +158,7 @@ def _score_base_and_corrected(
         y_corr = ordered["y_corr"].to_numpy(dtype=float)
         for model_name, y_pred in (
             ("chronos", y_base),
-            ("chronos_corrector_v1", y_corr),
+            (corrected_model_name, y_corr),
         ):
             values = {
                 "mase": mase(y_true, y_pred, item.train, seasonality=item.seasonality),
@@ -143,7 +176,7 @@ def _score_base_and_corrected(
     return pd.DataFrame(rows)
 
 
-def _forecast_frame(frame: pd.DataFrame) -> pd.DataFrame:
+def _forecast_frame(frame: pd.DataFrame, *, corrected_model_name: str) -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     for row in frame.itertuples(index=False):
         rows.append(
@@ -158,7 +191,7 @@ def _forecast_frame(frame: pd.DataFrame) -> pd.DataFrame:
         rows.append(
             {
                 "series_id": str(row.series_id),
-                "model": "chronos_corrector_v1",
+                "model": corrected_model_name,
                 "step": int(row.step),
                 "y_true": float(row.y_true),
                 "y_pred": float(row.y_corr),
@@ -167,14 +200,19 @@ def _forecast_frame(frame: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def _compare_models(scores: pd.DataFrame, test_frame: pd.DataFrame) -> dict[str, Any]:
+def _compare_models(
+    scores: pd.DataFrame,
+    test_frame: pd.DataFrame,
+    *,
+    corrected_model_name: str,
+) -> dict[str, Any]:
     out: dict[str, Any] = {}
     for metric in sorted(scores["metric"].unique()):
         base = scores[(scores["model"] == "chronos") & (scores["metric"] == metric)].set_index(
             "series_id"
         )["value"]
         corr = scores[
-            (scores["model"] == "chronos_corrector_v1") & (scores["metric"] == metric)
+            (scores["model"] == corrected_model_name) & (scores["metric"] == metric)
         ].set_index("series_id")["value"]
         aligned = base.index.intersection(corr.index)
         w = wilcoxon_signed_rank(
@@ -227,7 +265,7 @@ def _write_tracking(
     paths: RunPaths,
     *,
     split: SeriesSplit,
-    scaler: StandardScaler1D,
+    scaler: FeatureScaler,
     result,
     comparisons: dict[str, Any],
 ) -> None:
