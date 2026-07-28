@@ -45,7 +45,11 @@ Forecasts are also cached under `outputs/cache/forecasts/` so models are not rec
 
 ```bash
 meta-ts-run configs/seasonal_naive_m4_hourly.yaml
+meta-ts-tables --list-runs
+meta-ts-tables                 # prints leaderboard + writes outputs/tables/leaderboard.csv
 ```
+
+Analytics default to **DuckDB** over the parquet run lake. The backend is swappable (`--backend duckdb`; `lancedb` reserved for a future embedding store).
 
 ## Go / no-go
 
