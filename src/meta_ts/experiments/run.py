@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from meta_ts.experiments.m4_chronos import run_m4_chronos
 from meta_ts.experiments.m4_naive import run_m4_seasonal_naive
 from meta_ts.results.manifest import load_config
 from meta_ts.results.paths import run_paths
@@ -21,15 +22,25 @@ def main(argv: list[str] | None = None) -> int:
     model = config.get("model")
     dataset = config.get("dataset", {})
 
-    if model == "seasonal_naive" and dataset.get("name") == "m4":
+    if dataset.get("name") != "m4":
+        raise SystemExit(f"unsupported dataset: {dataset!r}")
+
+    if model == "seasonal_naive":
         run_id = run_m4_seasonal_naive(
             str(args.config),
             base=args.base,
             data_dir=args.data_dir,
             use_cache=not args.no_cache,
         )
+    elif model == "chronos":
+        run_id = run_m4_chronos(
+            str(args.config),
+            base=args.base,
+            data_dir=args.data_dir,
+            use_cache=not args.no_cache,
+        )
     else:
-        raise SystemExit(f"unsupported experiment: model={model!r} dataset={dataset!r}")
+        raise SystemExit(f"unsupported model: {model!r}")
 
     summary = load_summary(run_paths(run_id, base=args.base).summary)
     print(f"run_id: {run_id}")
