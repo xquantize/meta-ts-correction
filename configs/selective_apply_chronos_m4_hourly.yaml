@@ -1,0 +1,15 @@
+name: selective_apply_chronos_m4_hourly
+metric: mase
+residuals: residuals_chronos_m4_hourly
+rule:
+  feature: abs_diff_mean
+  fit_on: train
+  quantile: 0.75
+  direction: high
+runs:
+  - run_id: 20260728T041734Z_corrector_v1_chronos_m4_hourly_d9e83543342c
+  - run_id: 20260728T214721Z_corrector_v2_chronos_m4_hourly_de857d53af29
+notes: >
+  No retrain. Fit abs_diff_mean threshold on the corrector's train fold
+  (75th percentile). On test: use corrected MASE if feature >= threshold,
+  else keep Chronos MASE. Motivated by R5 (v2 helped only on high abs_diff_mean).

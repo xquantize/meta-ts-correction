@@ -42,6 +42,7 @@ meta-ts-run = "meta_ts.experiments.run:main"
 meta-ts-tables = "meta_ts.analytics.cli:main"
 meta-ts-residuals = "meta_ts.experiments.residuals_cli:main"
 meta-ts-when-it-helps = "meta_ts.analytics.when_it_helps_cli:main"
+meta-ts-selective-apply = "meta_ts.analytics.selective_apply_cli:main"
 
 [build-system]
 requires = ["hatchling"]

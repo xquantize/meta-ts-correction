@@ -1,6 +1,29 @@
 % Chronological experiment log. Append newest entries at the TOP.
 % Rule: every number that might enter the paper must appear here with a full run_id.
 
+\subsection*{R6 --- Selective apply replay (2026-07-29)}
+\begin{itemize}
+  \item \textbf{Config:} \texttt{configs/selective\_apply\_chronos\_m4\_hourly.yaml}
+  \item \textbf{Artifact:}
+        \texttt{outputs/tables/selective\_apply/selective\_apply\_chronos\_m4\_hourly/}
+  \item \textbf{Source runs:} R3 / R4 (same ids as R5).
+  \item \textbf{Setup:} no retrain. Fit \texttt{abs\_diff\_mean} threshold on
+        \emph{train} fold (quantile $0.75$ $\Rightarrow$ threshold $103.984$);
+        on test, use corrected series MASE iff feature $\ge$ threshold, else
+        keep Chronos. Applied on $16/62$ series ($26\%$).
+  \item \textbf{Numbers (mean test MASE):}
+        \begin{itemize}
+          \item v1: base $1.070$ / always-corr $1.069$ / selective $1.067$;
+                Wilcoxon $p=0.060$ (ties dropped; $n=16$ applied).
+          \item v2: base $1.070$ / always-corr $2.156$ / selective $1.053$;
+                Wilcoxon $p=0.0049$ ($n=16$).
+        \end{itemize}
+  \item \textbf{Decision:} \texttt{worth\_gate=true} for both (selective beats
+        always-corrected and is no worse than base on mean MASE).
+  \item \textbf{Paper note:} a hard abstain rule already rescues v2; motivates a
+        learned $\gamma$ gate as the next \emph{method} commit.
+\end{itemize}
+
 \subsection*{R5 --- When-it-helps stratification (2026-07-29)}
 \begin{itemize}
   \item \textbf{Config:} \texttt{configs/when\_it\_helps\_chronos\_m4\_hourly.yaml}
