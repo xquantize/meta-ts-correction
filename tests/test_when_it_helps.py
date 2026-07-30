@@ -69,7 +69,9 @@ def _write_fixture(base: Path) -> tuple[str, str]:
     )
     scores.to_parquet(root / "scores.parquet", index=False)
     (root / "splits.json").write_text(
-        json.dumps({"train_ids": [], "val_ids": [], "test_ids": ["H1", "H2", "H3", "H4"], "seed": 0})
+        json.dumps(
+            {"train_ids": [], "val_ids": [], "test_ids": ["H1", "H2", "H3", "H4"], "seed": 0}
+        )
     )
     (root / "summary.json").write_text(
         json.dumps(
@@ -102,7 +104,7 @@ def _write_fixture(base: Path) -> tuple[str, str]:
 
 def test_analyze_and_write(tmp_path: Path):
     run_id, res_name = _write_fixture(tmp_path)
-    series, strata, meta = analyze_run(
+    _series, strata, meta = analyze_run(
         run_id=run_id,
         residuals_name=res_name,
         metric="mase",

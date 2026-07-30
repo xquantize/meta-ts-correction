@@ -68,7 +68,7 @@ def summarize_policy(
 ) -> dict[str, Any]:
     delta = base_values.astype(float) - policy_values.astype(float)
     out: dict[str, Any] = {
-        "n": int(len(base_values)),
+        "n": len(base_values),
         "base_mean": float(base_values.mean()),
         "policy_mean": float(policy_values.mean()),
         "delta_mean": float(delta.mean()),
@@ -185,7 +185,7 @@ def analyze_selective_run(
             "fit_on": fit_on,
             "threshold": threshold,
         },
-        "n_test": int(len(series)),
+        "n_test": len(series),
         "always_base_mean": float(series["base_value"].mean()),
         "always_corrected": always_corr,
         "selective": selective,
