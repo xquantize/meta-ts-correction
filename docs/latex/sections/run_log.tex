@@ -1,6 +1,38 @@
 % Chronological experiment log. Append newest entries at the TOP.
 % Rule: every number that might enter the paper must appear here with a full run_id.
 
+\subsection*{R7 --- Val-selected abstain rule (2026-07-31)}
+\begin{itemize}
+  \item \textbf{Config:} \texttt{configs/rule\_search\_chronos\_m4\_hourly.yaml}
+  \item \textbf{Artifact:}
+        \texttt{outputs/tables/rule\_search/rule\_search\_chronos\_m4\_hourly/}
+  \item \textbf{Source runs:} R3 / R4 (same ids as R5--R6).
+  \item \textbf{Why:} R6 chose \texttt{abs\_diff\_mean} \emph{after} looking at
+        test-fold strata (R5). Here the rule is chosen on the \textbf{val} fold
+        only; thresholds are still fit on train meta-features; test is scored once.
+        Val-fold scores are obtained by replaying \texttt{model.pt} (runs only
+        persist test scores).
+  \item \textbf{Search:} 61 candidates $=$ \{\texttt{abs\_diff\_mean},
+        \texttt{cv}, \texttt{seasonal\_corr}, \texttt{trend\_corr},
+        \texttt{n\_train}\} $\times$ 6 quantiles $\times$ \{high, low\},
+        plus an explicit \emph{never apply} policy.
+  \item \textbf{Numbers (v1):} selected \texttt{seasonal\_corr} high Q0.5;
+        val $0.9112$ vs val base $0.9454$; test base $1.0700$, always-corr
+        $1.0691$, selective $\mathbf{1.0692}$ ($44\%$ applied),
+        Wilcoxon $p=0.0747$ --- beats base, \emph{not} significant.
+  \item \textbf{Numbers (v2):} selected \texttt{abs\_diff\_mean} high Q0.6
+        (threshold $34.87$); val $0.9204$ vs base $0.9454$; test base $1.0700$,
+        always-corr $2.1557$, selective $\mathbf{1.0554}$ ($35\%$ applied),
+        Wilcoxon $p=0.0267$ --- beats base and significant.
+  \item \textbf{Decision:} R6 survives honest selection for v2; v1 does not.
+        \emph{never apply} ranked 7/61 on val for v2 and 48/61 for v1.
+  \item \textbf{Caveats:} 61 candidates selected on $n=62$ val series (selection
+        variance, no multiplicity correction); val margin ($-0.034$) is larger
+        than the test margin ($-0.015$); M4 leakage still applies.
+  \item \textbf{Paper note:} the abstain result is not an artifact of peeking ---
+        the gate story is worth building, but only v2 clears $p<0.05$.
+\end{itemize}
+
 \subsection*{R6 --- Selective apply replay (2026-07-29)}
 \begin{itemize}
   \item \textbf{Config:} \texttt{configs/selective\_apply\_chronos\_m4\_hourly.yaml}

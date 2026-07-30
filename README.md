@@ -41,8 +41,9 @@ uv pip install -e ".[tsfm]"
 | 5. Corrector v2 | `meta-ts-run configs/corrector_v2_…` | Same + meta-features, still no gate |
 | 6. When-it-helps | `meta-ts-when-it-helps configs/when_it_helps_…` | *Descriptive* quartiles of ΔMASE by meta-feature on the test fold |
 | 7. Selective apply | `meta-ts-selective-apply configs/selective_apply_…` | *No retrain*: train-fit threshold → apply correction only when rule fires |
+| 8. Rule search | `meta-ts-rule-search configs/rule_search_…` | Same, but the rule is **selected on val** and test is scored once |
 
-Analysis artifacts (steps 6–7) write under `outputs/tables/`, not `outputs/runs/`.
+Analysis artifacts (steps 6–8) write under `outputs/tables/`, not `outputs/runs/`.
 
 ### Selective apply (step 7)
 
@@ -58,6 +59,27 @@ This is a score-level replay of an existing corrector run — it does not retrai
 meta-ts-selective-apply configs/selective_apply_chronos_m4_hourly.yaml
 # → outputs/tables/selective_apply/<name>/{summary.json,comparison.csv,series.parquet}
 ```
+
+### Rule search (step 8)
+
+Step 7 picked `abs_diff_mean` *after* seeing test-fold strata, so it can flatter
+itself. Step 8 removes that peek:
+
+1. Replay the finished run's `model.pt` on the **val** fold (runs only persist test
+   scores, so val scores must be recomputed — see `analytics/fold_scores.py`).
+2. Rank a candidate grid (`features × quantiles × {high, low}`) on val, plus an
+   explicit **never apply** policy so selection can decline to correct.
+   Thresholds still come from **train** meta-features only.
+3. Freeze the winner and score the **test** fold once.
+
+```bash
+meta-ts-rule-search configs/rule_search_chronos_m4_hourly.yaml
+# → outputs/tables/rule_search/<name>/{summary.json,candidates.csv,test_series.parquet}
+```
+
+Ranking prefers the lowest mean metric, breaking ties toward applying to fewer
+series. `beats_base_on_test` / `significant_on_test` in `summary.json` are the
+honest read; the val margin is expected to be optimistic relative to test.
 
 ### When-it-helps (step 6)
 
@@ -79,6 +101,7 @@ meta-ts-run configs/corrector_v1_chronos_m4_hourly.yaml
 meta-ts-run configs/corrector_v2_chronos_m4_hourly.yaml
 meta-ts-when-it-helps configs/when_it_helps_chronos_m4_hourly.yaml
 meta-ts-selective-apply configs/selective_apply_chronos_m4_hourly.yaml
+meta-ts-rule-search configs/rule_search_chronos_m4_hourly.yaml
 meta-ts-tables --list-runs
 meta-ts-tables
 ```
@@ -105,14 +128,17 @@ held-out series under Wilcoxon on per-series MASE ($p < 0.05$), pivot to a study
 when TSFMs need correction.
 
 **Current:** v1 and v2 are both **no_go** ungated. When-it-helps (R5) showed
-heterogeneity; selective apply on high `abs_diff_mean` (R6) recovers accuracy and
-flags `worth_gate` — especially for v2. Details in `docs/latex/`. Harness tag:
-`harness-validated`.
+heterogeneity; selective apply (R6) recovered accuracy; val-selected rules (R7)
+confirm it without peeking at test — v2 reaches test MASE 1.055 vs base 1.070
+($p = 0.027$), while v1 stays inside noise ($p = 0.075$). Details in `docs/latex/`.
+Harness tag: `harness-validated`.
 
 ## Layout
 
 ```text
-src/meta_ts/   library + experiments + analytics
+src/meta_ts/analytics/   tables + when-it-helps, selective apply, rule search
+src/meta_ts/corrector/   residual corrector model, features, splits
+src/meta_ts/experiments/ run entry points (forecast + corrector)
 tests/         unit + harness checks
 configs/       one YAML per experiment / analysis
 docs/          leakage audit; LaTeX notes in docs/latex/

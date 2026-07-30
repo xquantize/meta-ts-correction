@@ -49,7 +49,26 @@ Selective (26\% apply) & 1.067 & 0.060 & \textbf{1.053} & 0.005 \\
 ($n=16$ for selective). Traceability: run log R6.}
 \end{table}
 
+\subsection*{Val-selected abstain rule (rule chosen on val, test scored once)}
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{llrrr}
+\toprule
+Corrector & Selected rule (val) & Applied & Test MASE & $p$ \\
+\midrule
+--- & always base & 0\% & 1.070 & --- \\
+v1 & \texttt{seasonal\_corr} high Q0.5 & 44\% & 1.069 & 0.075 \\
+v2 & \texttt{abs\_diff\_mean} high Q0.6 & 35\% & \textbf{1.055} & 0.027 \\
+\bottomrule
+\end{tabular}
+\caption{61 candidates (incl.\ \emph{never apply}) ranked on val; thresholds fit
+on train. Wilcoxon base $>$ policy on test. Traceability: run log R7.}
+\end{table}
+
 \noindent\textbf{Working conclusion.}
-Ungated correction fails; a simple train-fit abstain rule already rescues v2 on
-this split ($\texttt{worth\_gate}$). Next method step: a learned $\gamma$ gate
-(or hard gate inside the corrector), still checked on a cleaner suite later.
+Ungated correction fails, but abstaining rescues it, and this survives honest
+rule selection: with the rule picked on val only, v2 reaches test MASE $1.055$
+vs base $1.070$ ($p=0.027$) while v1 stays inside noise ($p=0.075$). Next method
+step: a learned $\gamma$ gate (or hard gate inside the corrector), then a cleaner
+non-leaked suite before any strong claim.

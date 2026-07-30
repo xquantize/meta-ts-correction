@@ -14,7 +14,12 @@
         config hash), frozen \texttt{config.yaml}, scores/forecasts parquet,
         and (for correctors) \texttt{comparisons.json} + \texttt{go\_nogo} in
         \texttt{summary.json}. Tables via DuckDB (\texttt{meta-ts-tables}).
-        Analyses: \texttt{meta-ts-when-it-helps} (descriptive strata) and
-        \texttt{meta-ts-selective-apply} (train-fit threshold replay)
+        Analyses: \texttt{meta-ts-when-it-helps} (descriptive strata),
+        \texttt{meta-ts-selective-apply} (train-fit threshold replay), and
+        \texttt{meta-ts-rule-search} (val-selected rule, single test evaluation)
         $\rightarrow$ \texttt{outputs/tables/}.
+  \item \textbf{Rule selection.} Abstain rules are chosen on the \emph{val} fold
+        only; thresholds come from \emph{train} meta-features; the test fold is
+        scored once with the frozen rule. Val-fold scores are produced by
+        replaying a finished run's \texttt{model.pt} (runs persist test scores only).
 \end{itemize}
