@@ -80,7 +80,7 @@ def run_corrector(
         test_corrected["y_corr"] = test_corrected["y_pred"] + test_corrected["residual_hat"]
 
         series = {s.series_id: s for s in load_m4_group(group, directory=data_dir)}
-        scores = _score_base_and_corrected(
+        scores = score_base_and_corrected(
             test_corrected, series, metrics, corrected_model_name=corrected_model_name
         )
         forecasts = _forecast_frame(test_corrected, corrected_model_name=corrected_model_name)
@@ -142,7 +142,7 @@ def run_corrector_v2(
     return run_corrector(config_path, base=base, data_dir=data_dir)
 
 
-def _score_base_and_corrected(
+def score_base_and_corrected(
     frame: pd.DataFrame,
     series: dict,
     metrics: list[str],
