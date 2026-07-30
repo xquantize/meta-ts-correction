@@ -1,0 +1,21 @@
+name: rule_search_chronos_m4_hourly
+metric: mase
+select_on: val
+device: cpu
+residuals: residuals_chronos_m4_hourly
+search:
+  features:
+    - abs_diff_mean
+    - cv
+    - seasonal_corr
+    - trend_corr
+    - n_train
+  quantiles: [0.5, 0.6, 0.7, 0.75, 0.8, 0.9]
+  directions: [high, low]
+runs:
+  - run_id: 20260728T041734Z_corrector_v1_chronos_m4_hourly_d9e83543342c
+  - run_id: 20260728T214721Z_corrector_v2_chronos_m4_hourly_de857d53af29
+notes: >
+  Honest version of R6: the abstain rule is chosen on the val fold (replayed from
+  model.pt), thresholds are fit on train meta-features, and the winner is scored
+  once on test. Candidates include "never apply" so selection can decline to correct.
