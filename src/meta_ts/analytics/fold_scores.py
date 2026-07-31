@@ -18,7 +18,7 @@ from meta_ts.corrector.features import FeatureScaler, StandardScaler1D, scale_po
 from meta_ts.corrector.model import ResidualCorrectorV1
 from meta_ts.corrector.train import predict_residuals
 from meta_ts.data.residuals import load_residual_dataset
-from meta_ts.experiments.corrector_v1 import score_base_and_corrected
+from meta_ts.experiments.corrector_run import score_base_and_corrected
 
 LEGACY_FEATURE_NAMES = ("y_pred", "step_frac")
 

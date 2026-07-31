@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 from typing import Any
 
-from meta_ts.experiments.corrector_v1 import run_corrector_v1, run_corrector_v2
+from meta_ts.experiments.corrector_run import run_corrector_v1, run_corrector_v2
 from meta_ts.experiments.m4_chronos import run_m4_chronos
 from meta_ts.experiments.m4_naive import run_m4_seasonal_naive
 from meta_ts.results.manifest import load_config

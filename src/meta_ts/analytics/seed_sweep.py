@@ -8,7 +8,7 @@ from typing import Any
 import pandas as pd
 
 from meta_ts.analytics.rule_search import run_rule_search
-from meta_ts.experiments.corrector_v1 import run_corrector
+from meta_ts.experiments.corrector_run import run_corrector
 from meta_ts.results.manifest import RunManifest, load_config
 from meta_ts.results.paths import runs_root, tables_root
 

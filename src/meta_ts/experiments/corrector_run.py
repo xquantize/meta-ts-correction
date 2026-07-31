@@ -1,3 +1,5 @@
+"""Train and evaluate residual correctors (v1 / v2 configs share this runner)."""
+
 from __future__ import annotations
 
 import json
