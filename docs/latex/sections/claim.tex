@@ -11,9 +11,10 @@ not beat the frozen base on held-out series under Wilcoxon on per-series MASE
 \emph{when TSFMs need correction}. A null is publishable if decided upfront.
 
 \noindent\textbf{Status (current).}
-Corrector v1 / v2: \textbf{no\_go} ungated (R3--R4). When-it-helps (R5) found
-heterogeneity. Selective apply on high \texttt{abs\_diff\_mean} (R6):
-\texttt{worth\_gate=true} (v2 selective MASE $1.053$ vs base $1.070$).
+Corrector v1 / v2: \textbf{no\_go} ungated (R3--R4). When-it-helps (R5) /
+selective apply (R6) / val-selected rules (R7) motivated abstention.
+Multi-seed sweep (R8, seeds $0$--$4$): v2 beats base on mean MASE in $5/5$
+seeds (significant in $2/5$); \texttt{abs\_diff\_mean} selected on $4/5$.
 Harness: tag \texttt{harness-validated}.
 
 \noindent\textbf{Leakage.}

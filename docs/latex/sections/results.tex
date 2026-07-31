@@ -49,7 +49,43 @@ Selective (26\% apply) & 1.067 & 0.060 & \textbf{1.053} & 0.005 \\
 ($n=16$ for selective). Traceability: run log R6.}
 \end{table}
 
+\subsection*{Val-selected abstain rule (rule chosen on val, test scored once)}
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{llrrr}
+\toprule
+Corrector & Selected rule (val) & Applied & Test MASE & $p$ \\
+\midrule
+--- & always base & 0\% & 1.070 & --- \\
+v1 & \texttt{seasonal\_corr} high Q0.5 & 44\% & 1.069 & 0.075 \\
+v2 & \texttt{abs\_diff\_mean} high Q0.6 & 35\% & \textbf{1.055} & 0.027 \\
+\bottomrule
+\end{tabular}
+\caption{61 candidates (incl.\ \emph{never apply}) ranked on val; thresholds fit
+on train. Wilcoxon base $>$ policy on test. Traceability: run log R7.}
+\end{table}
+
+\subsection*{Val-selected abstain across split seeds}
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Corrector & Beats base & $p<0.05$ & mean margin & Top feature \\
+\midrule
+v1 & $4/5$ & $3/5$ & $+0.0057$ & mixed \\
+v2 & $5/5$ & $2/5$ & $+0.0065$ & \texttt{abs\_diff\_mean} ($4/5$) \\
+\bottomrule
+\end{tabular}
+\caption{Seeds $\{0..4\}$; rule selected on val per seed; margin $=$ base $-$
+selective test MASE. Traceability: run log R8.}
+\end{table}
+
 \noindent\textbf{Working conclusion.}
-Ungated correction fails; a simple train-fit abstain rule already rescues v2 on
-this split ($\texttt{worth\_gate}$). Next method step: a learned $\gamma$ gate
-(or hard gate inside the corrector), still checked on a cleaner suite later.
+Ungated correction fails. Val-selected abstain helps on mean MASE across seeds
+(especially v2: $5/5$ beats base; \texttt{abs\_diff\_mean} wins $4/5$), but
+Wilcoxon significance is unstable ($2/5$ for v2). Report seed-aggregated win
+rates, not a single $p$-value. A learned gate is optional; a hard
+\texttt{abs\_diff\_mean} abstain is the simpler story --- still on leaked M4.
+

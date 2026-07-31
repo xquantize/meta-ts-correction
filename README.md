@@ -41,8 +41,23 @@ uv pip install -e ".[tsfm]"
 | 5. Corrector v2 | `meta-ts-run configs/corrector_v2_…` | Same + meta-features, still no gate |
 | 6. When-it-helps | `meta-ts-when-it-helps configs/when_it_helps_…` | *Descriptive* quartiles of ΔMASE by meta-feature on the test fold |
 | 7. Selective apply | `meta-ts-selective-apply configs/selective_apply_…` | *No retrain*: train-fit threshold → apply correction only when rule fires |
+| 8. Rule search | `meta-ts-rule-search configs/rule_search_…` | Same, but the rule is **selected on val** and test is scored once |
+| 9. Seed sweep | `meta-ts-seed-sweep configs/seed_sweep_…` | Repeat step 8 across split seeds; report win rate / rule stability |
 
-Analysis artifacts (steps 6–7) write under `outputs/tables/`, not `outputs/runs/`.
+Analysis artifacts (steps 6–9) write under `outputs/tables/`, not `outputs/runs/`.
+
+### Seed override
+
+Corrector configs keep a default `seed:` in YAML. To re-split without cloning
+configs:
+
+```bash
+meta-ts-run configs/corrector_v2_chronos_m4_hourly.yaml --seed 3
+```
+
+The run folder freezes the *effective* config (`seed: 3`, `overrides.seed: 3`,
+name suffix `_seed3`). Discovery for sweeps matches `(model, seed)` in the
+manifest — seed 0 reuses the original R3/R4 runs when present.
 
 ### Selective apply (step 7)
 
@@ -57,6 +72,43 @@ This is a score-level replay of an existing corrector run — it does not retrai
 ```bash
 meta-ts-selective-apply configs/selective_apply_chronos_m4_hourly.yaml
 # → outputs/tables/selective_apply/<name>/{summary.json,comparison.csv,series.parquet}
+```
+
+### Rule search (step 8)
+
+Step 7 picked `abs_diff_mean` *after* seeing test-fold strata, so it can flatter
+itself. Step 8 removes that peek:
+
+1. Replay the finished run's `model.pt` on the **val** fold (runs only persist test
+   scores, so val scores must be recomputed — see `analytics/fold_scores.py`).
+2. Rank a candidate grid (`features × quantiles × {high, low}`) on val, plus an
+   explicit **never apply** policy so selection can decline to correct.
+   Thresholds still come from **train** meta-features only.
+3. Freeze the winner and score the **test** fold once.
+
+```bash
+meta-ts-rule-search configs/rule_search_chronos_m4_hourly.yaml
+# → outputs/tables/rule_search/<name>/{summary.json,candidates.csv,test_series.parquet}
+```
+
+Ranking prefers the lowest mean metric, breaking ties toward applying to fewer
+series. `beats_base_on_test` / `significant_on_test` in `summary.json` are the
+honest read; the val margin is expected to be optimistic relative to test.
+
+### Seed sweep (step 9)
+
+One seed is not enough when the test margin is ~0.01 and you rank 61 candidates
+on 62 val series. The sweep:
+
+1. For each `(corrector config, seed)`: train or reuse a completed run.
+2. Run val-selected rule search (step 8) for that run.
+3. Aggregate: fraction of seeds that beat base / are significant, mean±std
+   margin, and how often each feature wins.
+
+```bash
+meta-ts-seed-sweep configs/seed_sweep_chronos_m4_hourly.yaml
+# → outputs/tables/seed_sweep/<name>/{summary.json,per_seed.csv,aggregation.json}
+# flags: --skip-train (reuse only), --force (retrain even if present)
 ```
 
 ### When-it-helps (step 6)
@@ -79,6 +131,8 @@ meta-ts-run configs/corrector_v1_chronos_m4_hourly.yaml
 meta-ts-run configs/corrector_v2_chronos_m4_hourly.yaml
 meta-ts-when-it-helps configs/when_it_helps_chronos_m4_hourly.yaml
 meta-ts-selective-apply configs/selective_apply_chronos_m4_hourly.yaml
+meta-ts-rule-search configs/rule_search_chronos_m4_hourly.yaml
+meta-ts-seed-sweep configs/seed_sweep_chronos_m4_hourly.yaml
 meta-ts-tables --list-runs
 meta-ts-tables
 ```
@@ -88,7 +142,7 @@ Each training/forecast run writes:
 ```text
 outputs/runs/<run_id>/
   manifest.json      # git sha, config hash, status
-  config.yaml        # frozen copy
+  config.yaml        # frozen *effective* config (CLI overrides included)
   forecasts.parquet
   scores.parquet
   summary.json
@@ -104,15 +158,18 @@ After corrector v1 (point residual only): if it does not beat the frozen base on
 held-out series under Wilcoxon on per-series MASE ($p < 0.05$), pivot to a study of
 when TSFMs need correction.
 
-**Current:** v1 and v2 are both **no_go** ungated. When-it-helps (R5) showed
-heterogeneity; selective apply on high `abs_diff_mean` (R6) recovers accuracy and
-flags `worth_gate` — especially for v2. Details in `docs/latex/`. Harness tag:
+**Current:** v1 and v2 are both **no_go** ungated. Val-selected abstain (R7) and
+a 5-seed sweep (R8): v2 beats base on mean MASE in **5/5** seeds (significant in
+**2/5**); `abs_diff_mean` is selected on **4/5**. Prefer seed-aggregated win
+rates over a single $p$-value. Details in `docs/latex/`. Harness tag:
 `harness-validated`.
 
 ## Layout
 
 ```text
-src/meta_ts/   library + experiments + analytics
+src/meta_ts/analytics/   tables + when-it-helps, selective apply, rule search, seed sweep
+src/meta_ts/corrector/   residual corrector model, features, splits
+src/meta_ts/experiments/ run entry points (forecast + corrector)
 tests/         unit + harness checks
 configs/       one YAML per experiment / analysis
 docs/          leakage audit; LaTeX notes in docs/latex/

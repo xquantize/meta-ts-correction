@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
@@ -13,6 +15,8 @@ import yaml
 
 from meta_ts import __version__
 from meta_ts.results.paths import RunPaths, run_paths
+
+_SEED_SUFFIX = re.compile(r"_seed\d+$")
 
 
 @dataclass
@@ -51,6 +55,35 @@ def load_config(path: str | Path) -> dict[str, Any]:
     if "name" not in config:
         raise ValueError("config requires a 'name' field")
     return config
+
+
+def apply_config_overrides(
+    config: dict[str, Any],
+    overrides: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Return a deep copy with CLI overrides applied.
+
+    The effective config is what gets frozen into the run folder. Seed overrides
+    also rewrite ``name`` to ``{base}_seed{N}`` so multi-seed runs are readable.
+    """
+    out = copy.deepcopy(config)
+    if not overrides:
+        return out
+
+    recorded: dict[str, Any] = dict(out.get("overrides") or {})
+    if "seed" in overrides:
+        seed = int(overrides["seed"])
+        out["seed"] = seed
+        base_name = _SEED_SUFFIX.sub("", str(out["name"]))
+        out["name"] = f"{base_name}_seed{seed}"
+        recorded["seed"] = seed
+    if recorded:
+        out["overrides"] = recorded
+    return out
+
+
+def dump_config(config: dict[str, Any]) -> str:
+    return yaml.safe_dump(config, sort_keys=False, default_flow_style=False)
 
 
 def make_run_id(name: str, digest: str, when: datetime | None = None) -> str:
@@ -95,12 +128,18 @@ def create_manifest(config: dict[str, Any], *, status: str = "running") -> RunMa
     )
 
 
-def init_run(config_path: str | Path, base: str | Path = "outputs") -> tuple[RunManifest, RunPaths]:
-    config = load_config(config_path)
+def init_run(
+    config_path: str | Path,
+    base: str | Path = "outputs",
+    *,
+    overrides: dict[str, Any] | None = None,
+) -> tuple[RunManifest, RunPaths]:
+    config = apply_config_overrides(load_config(config_path), overrides)
     manifest = create_manifest(config)
     paths = run_paths(manifest.run_id, base=base).ensure()
     manifest.write(paths.manifest)
-    paths.config.write_text(Path(config_path).read_text())
+    # Freeze the *effective* config (overrides included), not the source file.
+    paths.config.write_text(dump_config(config))
     return manifest, paths
 
 

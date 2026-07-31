@@ -1,6 +1,9 @@
 \begin{enumerate}
-  \item Learned $\gamma$ gate (or hard gate) inside the corrector --- can it
-        match / beat the R6 selective-apply replay without hand-picked thresholds?
+  \item Hard-code an \texttt{abs\_diff\_mean} abstain (train-fit threshold) as
+        \texttt{corrector\_v3} --- does a fixed rule match the seed-sweep
+        without a 61-candidate grid?
+  \item Learned $\gamma$ gate --- only if the hard rule underperforms the
+        seed-sweep oracle by a clear margin.
   \item Clean / non-leaked eval for any strong claim (M4 is high leakage risk
         for Chronos).
 \end{enumerate}

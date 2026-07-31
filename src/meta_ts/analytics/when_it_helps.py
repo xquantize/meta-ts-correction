@@ -100,7 +100,7 @@ def summarize_feature_strata(
                 "bin_id": int(bin_id),
                 "bin_lo": float(g["bin_lo"].iloc[0]),
                 "bin_hi": float(g["bin_hi"].iloc[0]),
-                "n": int(len(g)),
+                "n": len(g),
                 "mean_delta": float(g["delta"].mean()),
                 "median_delta": float(g["delta"].median()),
                 "frac_helped": float(g["helped"].mean()),
@@ -213,7 +213,9 @@ def analyze_run(
 
     if strata is None:
         strata_specs = [{"feature": f, "n_bins": 4} for f in DEFAULT_META_STRATA]
-        strata_specs.append({"feature": "base_mase" if metric == "mase" else f"base_{metric}", "n_bins": 4})
+        strata_specs.append(
+            {"feature": "base_mase" if metric == "mase" else f"base_{metric}", "n_bins": 4}
+        )
     else:
         strata_specs = strata
 
@@ -236,9 +238,7 @@ def analyze_run(
         part.insert(1, "corrected_model", corr_model)
         strata_frames.append(part)
 
-    strata_df = (
-        pd.concat(strata_frames, ignore_index=True) if strata_frames else pd.DataFrame()
-    )
+    strata_df = pd.concat(strata_frames, ignore_index=True) if strata_frames else pd.DataFrame()
 
     series_out = series.copy()
     series_out.insert(0, "run_id", run_id)
@@ -251,7 +251,7 @@ def analyze_run(
         "base_model": b_model,
         "corrected_model": corr_model,
         "split": split,
-        "n_series": int(len(series_out)),
+        "n_series": len(series_out),
         "mean_delta": float(series_out["delta"].mean()) if len(series_out) else None,
         "frac_helped": float(series_out["helped"].mean()) if len(series_out) else None,
         "binning": "quantile_on_analysis_series",
@@ -312,9 +312,7 @@ def run_when_it_helps(
     out_dir.mkdir(parents=True, exist_ok=True)
 
     series_all = pd.concat(series_parts, ignore_index=True)
-    strata_all = (
-        pd.concat(strata_parts, ignore_index=True) if strata_parts else pd.DataFrame()
-    )
+    strata_all = pd.concat(strata_parts, ignore_index=True) if strata_parts else pd.DataFrame()
     series_all.to_parquet(out_dir / "series.parquet", index=False)
     strata_all.to_parquet(out_dir / "strata.parquet", index=False)
     strata_all.to_csv(out_dir / "strata.csv", index=False)

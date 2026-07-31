@@ -25,8 +25,9 @@ def run_corrector(
     *,
     base: str = "outputs",
     data_dir: str = "data/raw",
+    overrides: dict[str, Any] | None = None,
 ) -> str:
-    manifest, paths = init_run(config_path, base=base)
+    manifest, paths = init_run(config_path, base=base, overrides=overrides)
     try:
         cfg = manifest.config
         variant = str(cfg.get("model", "corrector_v1"))
@@ -80,7 +81,7 @@ def run_corrector(
         test_corrected["y_corr"] = test_corrected["y_pred"] + test_corrected["residual_hat"]
 
         series = {s.series_id: s for s in load_m4_group(group, directory=data_dir)}
-        scores = _score_base_and_corrected(
+        scores = score_base_and_corrected(
             test_corrected, series, metrics, corrected_model_name=corrected_model_name
         )
         forecasts = _forecast_frame(test_corrected, corrected_model_name=corrected_model_name)
@@ -129,8 +130,9 @@ def run_corrector_v1(
     *,
     base: str = "outputs",
     data_dir: str = "data/raw",
+    overrides: dict[str, Any] | None = None,
 ) -> str:
-    return run_corrector(config_path, base=base, data_dir=data_dir)
+    return run_corrector(config_path, base=base, data_dir=data_dir, overrides=overrides)
 
 
 def run_corrector_v2(
@@ -138,11 +140,12 @@ def run_corrector_v2(
     *,
     base: str = "outputs",
     data_dir: str = "data/raw",
+    overrides: dict[str, Any] | None = None,
 ) -> str:
-    return run_corrector(config_path, base=base, data_dir=data_dir)
+    return run_corrector(config_path, base=base, data_dir=data_dir, overrides=overrides)
 
 
-def _score_base_and_corrected(
+def score_base_and_corrected(
     frame: pd.DataFrame,
     series: dict,
     metrics: list[str],
