@@ -1,10 +1,12 @@
 \noindent\textbf{After every useful experiment}
 \begin{enumerate}
-  \item Confirm the run folder exists under \texttt{outputs/runs/<run\_id>/}.
-  \item Generate a stub:
+  \item Confirm the run folder exists under \texttt{outputs/runs/<run\_id>/}
+        (or the analysis folder under \texttt{outputs/tables/\ldots}).
+  \item For training runs, generate a stub:
         \texttt{./docs/latex/scripts/note\_run.sh outputs/runs/<run\_id>}
   \item Paste it at the \emph{top} of \texttt{sections/run\_log.tex}, bump the
-        \texttt{R\#}, fill the paper note.
+        \texttt{R\#}, fill the paper note. For table analyses, summarize from
+        \texttt{summary.json} by hand (same log format).
   \item If the number belongs in the report, update the compact table in
         \texttt{sections/results.tex} and point to that \texttt{R\#}.
   \item Recompile: \texttt{pdflatex main.tex}.

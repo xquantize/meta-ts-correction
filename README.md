@@ -167,13 +167,23 @@ rates over a single $p$-value. Details in `docs/latex/`. Harness tag:
 ## Layout
 
 ```text
-src/meta_ts/analytics/   tables + when-it-helps, selective apply, rule search, seed sweep
-src/meta_ts/corrector/   residual corrector model, features, splits
-src/meta_ts/experiments/ run entry points (forecast + corrector)
-tests/         unit + harness checks
-configs/       one YAML per experiment / analysis
-docs/          leakage audit; LaTeX notes in docs/latex/
-outputs/       runs, cache, tables, figures (gitignored)
+configs/                 one YAML per experiment / analysis
+data/                    local downloads (see data/README.md; contents gitignored)
+docs/
+  leakage.md             foundation-model overlap audit
+  latex/                 living notes (run_log + paper tables); PDF gitignored
+src/meta_ts/
+  analytics/             tables, when-it-helps, selective apply, rule search, seed sweep
+  baselines/             seasonal naive, Chronos, StatsForecast
+  corrector/             residual model, features, splits, training
+  data/                  M4 loaders, windows, residuals, meta-features
+  experiments/           meta-ts-run / residuals entry points
+  metrics/               MASE, sMAPE
+  results/               manifests, paths, artifact I/O
+  stats/                 DM, Wilcoxon, Holm
+  validation/            harness checks
+tests/                   unit + harness checks
+outputs/                 runs, cache, tables, figures (gitignored)
 ```
 
 Keep `docs/latex/` current: after a useful run,

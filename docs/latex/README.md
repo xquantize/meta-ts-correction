@@ -50,3 +50,4 @@ scripts/
 - `run_log.tex` is append-only (newest first) — don’t rewrite history quietly
 - Keep `results.tex` short; detail lives in the log
 - Record **no_go** outcomes; they matter for the write-up
+- `scripts/note_run.sh` and `ENTRY_TEMPLATE.tex` are tracked sources (PDF is not)
