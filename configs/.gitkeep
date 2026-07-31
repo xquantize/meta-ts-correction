@@ -1,9 +1,0 @@
-# Placeholder experiment configs — one YAML per run once baselines land.
-# Example shape (do not run yet):
-#
-# name: seasonal_naive_smoke
-# dataset: m4_hourly
-# horizon: 48
-# seasonality: 24
-# model: seasonal_naive
-# seed: 0

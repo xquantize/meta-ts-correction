@@ -27,16 +27,14 @@ htmlcov/
 .vscode/
 *.swp
 
-# Data & experiment artifacts (keep configs; ignore heavy caches)
+# Data & experiment artifacts (configs stay tracked)
 data/raw/
 data/processed/
 data/cache/
 outputs/
-runs/
 *.pt
 *.ckpt
 *.parquet
-!configs/**
 
-docs/latex/sections/ENTRY_TEMPLATE.tex
-docs/latex/scripts/note_run.sh
+# LaTeX build products live under docs/latex/.gitignore
+# Keep sources tracked: sections/*.tex, scripts/note_run.sh, ENTRY_TEMPLATE.tex
