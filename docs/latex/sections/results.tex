@@ -66,9 +66,26 @@ v2 & \texttt{abs\_diff\_mean} high Q0.6 & 35\% & \textbf{1.055} & 0.027 \\
 on train. Wilcoxon base $>$ policy on test. Traceability: run log R7.}
 \end{table}
 
+\subsection*{Val-selected abstain across split seeds}
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Corrector & Beats base & $p<0.05$ & mean margin & Top feature \\
+\midrule
+v1 & $4/5$ & $3/5$ & $+0.0057$ & mixed \\
+v2 & $5/5$ & $2/5$ & $+0.0065$ & \texttt{abs\_diff\_mean} ($4/5$) \\
+\bottomrule
+\end{tabular}
+\caption{Seeds $\{0..4\}$; rule selected on val per seed; margin $=$ base $-$
+selective test MASE. Traceability: run log R8.}
+\end{table}
+
 \noindent\textbf{Working conclusion.}
-Ungated correction fails, but abstaining rescues it, and this survives honest
-rule selection: with the rule picked on val only, v2 reaches test MASE $1.055$
-vs base $1.070$ ($p=0.027$) while v1 stays inside noise ($p=0.075$). Next method
-step: a learned $\gamma$ gate (or hard gate inside the corrector), then a cleaner
-non-leaked suite before any strong claim.
+Ungated correction fails. Val-selected abstain helps on mean MASE across seeds
+(especially v2: $5/5$ beats base; \texttt{abs\_diff\_mean} wins $4/5$), but
+Wilcoxon significance is unstable ($2/5$ for v2). Report seed-aggregated win
+rates, not a single $p$-value. A learned gate is optional; a hard
+\texttt{abs\_diff\_mean} abstain is the simpler story --- still on leaked M4.
+

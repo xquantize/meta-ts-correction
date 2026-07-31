@@ -15,11 +15,17 @@
         and (for correctors) \texttt{comparisons.json} + \texttt{go\_nogo} in
         \texttt{summary.json}. Tables via DuckDB (\texttt{meta-ts-tables}).
         Analyses: \texttt{meta-ts-when-it-helps} (descriptive strata),
-        \texttt{meta-ts-selective-apply} (train-fit threshold replay), and
-        \texttt{meta-ts-rule-search} (val-selected rule, single test evaluation)
+        \texttt{meta-ts-selective-apply} (train-fit threshold replay),
+        \texttt{meta-ts-rule-search} (val-selected rule, single test evaluation),
+        and \texttt{meta-ts-seed-sweep} (repeat across split seeds)
         $\rightarrow$ \texttt{outputs/tables/}.
   \item \textbf{Rule selection.} Abstain rules are chosen on the \emph{val} fold
         only; thresholds come from \emph{train} meta-features; the test fold is
         scored once with the frozen rule. Val-fold scores are produced by
         replaying a finished run's \texttt{model.pt} (runs persist test scores only).
+  \item \textbf{Seeds.} \texttt{meta-ts-run \ldots{} --seed N} overrides the YAML
+        seed and freezes the \emph{effective} config (including
+        \texttt{overrides.seed} and a \texttt{\_seedN} name suffix) into the run
+        folder. Seed sweeps reuse completed runs matched by
+        \texttt{(model, seed)}.
 \end{itemize}

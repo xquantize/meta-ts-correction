@@ -1,6 +1,36 @@
 % Chronological experiment log. Append newest entries at the TOP.
 % Rule: every number that might enter the paper must appear here with a full run_id.
 
+\subsection*{R8 --- Multi-seed rule-search sweep (2026-07-31)}
+\begin{itemize}
+  \item \textbf{Config:} \texttt{configs/seed\_sweep\_chronos\_m4\_hourly.yaml}
+  \item \textbf{Artifact:}
+        \texttt{outputs/tables/seed\_sweep/seed\_sweep\_chronos\_m4\_hourly/}
+  \item \textbf{Setup:} seeds $\{0,1,2,3,4\}$; for each seed, train/reuse
+        corrector v1 and v2 (series split + training seed), then R7-style
+        val-selected abstain rule scored once on test. Seed 0 reuses R3/R4.
+        CLI override \texttt{meta-ts-run \ldots{} --seed N} freezes the effective
+        seed into \texttt{config.yaml} / manifest.
+  \item \textbf{Numbers (v1, 5 seeds):} beats base $4/5$; significant
+        ($p<0.05$) $3/5$; mean test margin $+0.0057\pm0.0057$.
+        Selected features unstable:
+        \{\texttt{seasonal\_corr}:2, \texttt{trend\_corr}:2,
+        \texttt{abs\_diff\_mean}:1\}.
+  \item \textbf{Numbers (v2, 5 seeds):} beats base $5/5$; significant $2/5$;
+        mean test margin $+0.0065\pm0.0050$.
+        Feature stable: \texttt{abs\_diff\_mean} on $4/5$ seeds
+        (quantiles $0.5$--$0.8$); one seed picked \texttt{cv}.
+  \item \textbf{Decision:} the \emph{direction} of the effect is robust for v2
+        (always beats base on mean); \emph{significance} is not (only $2/5$).
+        Feature choice for v2 is mostly stable; for v1 it is not.
+  \item \textbf{Caveats:} test-fold Chronos MASE varies by seed
+        ($0.78$--$1.07$) because the held-out series change; still M4/Chronos
+        leakage; 61-candidate selection per seed without multiplicity correction.
+  \item \textbf{Paper note:} R7 was not a one-seed fluke for mean improvement,
+        but $p$-values alone would overclaim. Prefer reporting win rates /
+        margins across seeds.
+\end{itemize}
+
 \subsection*{R7 --- Val-selected abstain rule (2026-07-31)}
 \begin{itemize}
   \item \textbf{Config:} \texttt{configs/rule\_search\_chronos\_m4\_hourly.yaml}
