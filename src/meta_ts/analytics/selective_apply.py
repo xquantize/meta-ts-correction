@@ -12,6 +12,7 @@ from meta_ts.analytics.when_it_helps import (
     load_run_bundle,
     per_series_deltas,
 )
+from meta_ts.corrector.gate import apply_rule, fit_threshold
 from meta_ts.results.paths import residual_paths, tables_root
 from meta_ts.stats import wilcoxon_signed_rank
 
@@ -20,36 +21,7 @@ def selective_apply_paths(name: str, base: str | Path = "outputs") -> Path:
     return tables_root(base) / "selective_apply" / name
 
 
-def fit_threshold(
-    meta: pd.DataFrame,
-    *,
-    series_ids: list[str],
-    feature: str,
-    quantile: float,
-) -> float:
-    """Fit a scalar threshold on the fit fold (typically train)."""
-    if not 0.0 <= quantile <= 1.0:
-        raise ValueError("quantile must be in [0, 1]")
-    if feature not in meta.columns:
-        raise KeyError(f"feature {feature!r} not in series_meta")
-    sub = meta.loc[meta["series_id"].isin(series_ids), feature].astype(float)
-    if sub.empty:
-        raise ValueError("no series available to fit threshold")
-    return float(sub.quantile(quantile))
-
-
-def apply_rule(
-    values: pd.Series,
-    *,
-    threshold: float,
-    direction: str,
-) -> pd.Series:
-    """True = apply correction; False = keep base forecast scores."""
-    if direction == "high":
-        return values.astype(float) >= threshold
-    if direction == "low":
-        return values.astype(float) <= threshold
-    raise ValueError("direction must be 'high' or 'low'")
+# Threshold helpers live in corrector.gate (shared with hard-gate v3).
 
 
 def selective_values(
